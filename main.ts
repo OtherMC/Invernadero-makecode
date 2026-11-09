@@ -53,8 +53,8 @@ input.onButtonPressed(Button.A, function () {
         }
         basic.pause(5000)
         dht11_dht22.queryData(
-        DHTtype.DHT11,
-        DigitalPin.P1,
+        DHTtype.DHT22,
+        DigitalPin.P2,
         true,
         false,
         true
@@ -110,6 +110,7 @@ input.onButtonPressed(Button.A, function () {
             `)
     }
 })
+let TP_BM_MIN = 0
 let REV_DHT = 0
 let READING = 0
 radio.setGroup(57)
@@ -138,7 +139,8 @@ loops.everyInterval(20000, function () {
             # # # # #
             . # # # .
             `)
-        basic.showString(" " + dht11_dht22.readData(dataType.humidity) + "%")
+        TP_BM_MIN = dht11_dht22.readData(dataType.humidity)
+        basic.showString(" " + TP_BM_MIN + "%")
     } else {
         basic.showLeds(`
             . . # . .
@@ -152,6 +154,13 @@ loops.everyInterval(20000, function () {
         led.plotBrightness(2, 2, 12)
         led.plotBrightness(3, 3, 12)
         led.plotBrightness(4, 4, 12)
+    }
+    if (dht11_dht22.readDataSuccessful() == true) {
+        if (TP_BM_MIN <= 70) {
+            pins.digitalWritePin(DigitalPin.P0, 1)
+        } else {
+            pins.digitalWritePin(DigitalPin.P0, 0)
+        }
     }
     dht11_dht22.queryData(
     DHTtype.DHT22,
@@ -169,7 +178,7 @@ loops.everyInterval(20000, function () {
             . . # . .
             . . . # #
             `)
-        basic.showString(" " + dht11_dht22.readData(dataType.temperature) + " ºC")
+        basic.showString(" " + dht11_dht22.readData(dataType.temperature) + " *C")
     } else {
         basic.showLeds(`
             . # . . .
@@ -194,6 +203,6 @@ loops.everyInterval(20000, function () {
         . . . . .
         `)
     basic.pause(5000)
-    pauseUntil(() => REV_DHT == 0)
+    pauseUntil(() => REV_DHT >= 0)
     READING = 1
 })
